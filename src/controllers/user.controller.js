@@ -1,6 +1,11 @@
 import User from "../models/user.model.js";
 import { ErrorMessage } from "../utils/ErrorMessage.js";
 import mongoose from "mongoose";
+import cloudinary from "../utils/cloudinary.js";
+import path from "path"
+import DatauriParser from "datauri/parser.js"; 
+
+const parser = new DatauriParser()
 
 // get all users
 export const getUsers = async (req, res, next) => {
@@ -56,10 +61,21 @@ export const createUser = async (req, res, next) => {
     // const existingEmail = await User.findOne({ email: req.body.email });
     // if (existingEmail) return next(ErrorMessage("Email already in use.", 400))
 
+     // get file extension (.png, .jpg, etc) 
+    const extName = path.extname(req.file.originalname); 
+ 
+    // convert buffer to data URI 
+    const fileUri = parser.format(extName, req.file.buffer); 
+ 
+    const result = await cloudinary.uploader.upload(fileUri.content, { 
+      resource_type: "auto", 
+      folder: "uploads/users/", // optional 
+    })
+
     // storing user data in database
     const newUser = await User.create({
       ...req.body,
-      profilePic: `http://localhost:4000/uploads/${req.file.filename}`
+      profilePic: result.secure_url
     })
 
     res.status(201).json({
@@ -132,3 +148,6 @@ export const updateUserByPatch = async (req, res) => {
     next(error);
   }
 };
+
+
+

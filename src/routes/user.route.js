@@ -11,7 +11,7 @@ import {
   validationHandler,
 } from "../middlewares/express.validation.middleware.js";
 import { createUserValidation } from "../validators/user.validator.js";
-import { upload } from "../middlewares/upload.js";
+import upload from "../middlewares/cloudinary-multer.js";
 
 const router = express.Router();
 
